@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Recommendation System</h1>
+        <form id="recommendation-form">
+            <input type="text" id="movie-input" placeholder="Enter a movie name..." required>
+            <button type="submit">Get Recommendations</button>
+        </form>
+        <div id="recommendations">
+            <h2>Recommendations will appear here</h2>
+            <ul id="recommendation-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('recommendation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const movieName = document.getElementById('movie-input').value;
+            
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ movie_name: movieName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('recommendation-list');
+                list.innerHTML = '';
+                
+                if (data.length === 0) {
+                    list.innerHTML = '<li>No recommendations found. Try another movie.</li>';
+                    return;
+                }
+                
+                data.forEach(movie => {
+                    const li = document.createElement('li');
+                    li.textContent = movie;
+                    list.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
